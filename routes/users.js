@@ -39,3 +39,25 @@ router.post("/login", async (req, res) => {
 });
 
 export { router as userRouter }
+
+export const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization;
+    // const token = 'asd'
+    if (token) {
+        jwt.verify(token, "secret", (err, decoded) => {
+            if (err) return res.json({ error: true, message: 'Token not valid', status: 403 })
+            else {
+                const userID = decoded.id
+                if (userID) {
+                    console.log(userID, 'line 52')
+                    req.userID = userID
+                } else {
+                    return res.json({ error: true, message: 'Token not valid', status: 403 })
+                }
+                next();
+            }
+        });
+    } else {
+        return res.json({ error: true, message: 'Unauthorized', status: 403 })
+    }
+}
